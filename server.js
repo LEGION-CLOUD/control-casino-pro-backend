@@ -181,15 +181,24 @@ function getDashboard(req, res) {
   const totalIngresos = operaciones.filter(o => o.tipo === 'ingreso').reduce((a,b) => a + b.monto, 0);
   const totalEgresos = operaciones.filter(o => o.tipo === 'egreso').reduce((a,b) => a + b.monto, 0);
   const balance = totalIngresos - totalEgresos;
-  res.json({
+  const data = {
+    // camelCase (para compatibilidad)
     totalIngresos,
     totalEgresos,
     balance,
     totalClientes: clientes.length,
     totalUsuarios: users.length,
     totalOperaciones: operaciones.length,
-    ultimasOperaciones: operaciones.slice(0,10)
-  });
+    ultimasOperaciones: operaciones.slice(0,10),
+    // snake_case (lo que tu frontend necesita y rompia)
+    total_ingresos: totalIngresos,
+    total_egresos: totalEgresos,
+    total_clientes: clientes.length,
+    total_usuarios: users.length,
+    total_operaciones: operaciones.length,
+    ultimas_operaciones: operaciones.slice(0,10)
+  };
+  res.json(data);
 }
 app.get('/api/dashboard', getDashboard);
 app.get('/api/stats', getDashboard);
