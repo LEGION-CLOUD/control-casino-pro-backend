@@ -80,6 +80,8 @@ export function verifyAuthToken(token) {
 }
 
 function resolveDatabasePath() {
+  // SQLite en producción: si se monta un Persistent Disk en Render, usar la ruta exacta dentro del disco.
+  // Ejemplo recomendado: DB_PATH=/var/lib/render/project/data/casino.db
   const override = process.env.DB_PATH || process.env.SQLITE_PATH || process.env.DATABASE_URL;
   if (override && String(override).trim()) {
     return override;
