@@ -8,6 +8,15 @@ const PORT = process.env.PORT || 10000;
 app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json({ limit: '10mb' }));
 
+// FIX 2: Corrige /api/api/ a /api/ para evitar pantalla negra post-login
+app.use((req, res, next) => {
+  if (req.url.includes('/api/api/')) {
+    req.url = req.url.replace('/api/api/', '/api/');
+  }
+  if (req.url === '/api/api') req.url = '/api';
+  next();
+});
+
 // FIX: Acepta rutas con y sin /api para que el frontend no quede negro nunca
 app.use((req, res, next) => {
   const p = req.path;
