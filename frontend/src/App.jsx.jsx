@@ -68,18 +68,25 @@ export default function App(){
   const handleLogin=async(e)=>{ 
     e.preventDefault(); 
     const fd = new FormData(e.target);
-    const u = (fd.get('cc_user_x9') || '').toString().trim().toLowerCase();
-    const p = (fd.get('cc_pass_x9') || '').toString().trim();
-    if(u==='admin' && p==='admin123'){
-      const demo={id:1, username:u, nombre:'Administrador', rol:'admin'};
-      localStorage.setItem('cc_user', JSON.stringify(demo)); setUser(demo); return;
+    const username = (fd.get('cc_user_x9') || '').toString().trim();
+    const password = (fd.get('cc_pass_x9') || '').toString().trim();
+
+    if(!username || !password){
+      return alert('Ingresá usuario y contraseña');
     }
+
     try{
-      const r=await fetch(`${API}/login`,{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p})}); 
-      if(!r.ok){ const er=await r.json().catch(()=>({error:'Error login'})); return alert(er.error); } 
-      const userData=await r.json(); 
-      localStorage.setItem('cc_user', JSON.stringify(userData)); setUser(userData);
-    }catch(err){ alert('Usuario o contraseña incorrectos'); }
+      const r=await fetch(`${API}/login`,{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username, password})});
+      const result = await r.json().catch(()=>({ error: 'Error de autenticación' }));
+      if(!r.ok){
+        throw new Error(result.error || 'Credenciales inválidas');
+      }
+      const userData = result.user || result;
+      localStorage.setItem('cc_user', JSON.stringify(userData));
+      setUser(userData);
+    }catch(err){
+      alert(err.message || 'Usuario o contraseña incorrectos');
+    }
   };
 
   const crearCliente=async(e)=>{ 
@@ -132,12 +139,9 @@ export default function App(){
             <h2 style={{color:C.text, fontWeight:900, margin:0, fontSize:16, letterSpacing:1}}>CONTROL DEL CASINO</h2>
             <div style={{color:C.textMut, fontSize:10, marginTop:4, letterSpacing:1}}>CONTROL PRO</div>
           </div>
-          <input type="text" name="fake_user" style={{display:'none'}} autoComplete="off" />
-          <input type="password" name="fake_pass" style={{display:'none'}} autoComplete="new-password" />
           <input name="cc_user_x9" autoComplete="off" type="text" style={{...inputStyle, width:'100%', marginBottom:'10px', boxSizing:'border-box'}} placeholder="usuario" defaultValue="" />
           <input name="cc_pass_x9" autoComplete="new-password" type="password" style={{...inputStyle, width:'100%', marginBottom:'18px', boxSizing:'border-box'}} placeholder="contraseña" defaultValue="" />
           <button type="submit" style={{...btnPrimary, width:'100%', padding:'12px'}}>INGRESAR</button>
-          <div style={{textAlign:'center', marginTop:12, fontSize:10, color:C.textMut}}>admin / admin123</div>
         </form>
       </div>
     );
