@@ -8,28 +8,21 @@ const PORT = process.env.PORT || 10000;
 app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json({ limit: '10mb' }));
 
-// FIX: Acepta rutas con y sin /api para que el frontend no quede negro
+// FIX: Acepta rutas con y sin /api para que el frontend no quede negro nunca
 app.use((req, res, next) => {
-  if (req.path === '/users' || req.path.startsWith('/users/') || 
-      req.path === '/login' || req.path.startsWith('/login') ||
-      req.path === '/clients' || req.path.startsWith('/clients') ||
-      req.path === '/operations' || req.path === '/auth') {
+  const p = req.path;
+  if (p === '/users' || p.startsWith('/users/') || p === '/usuarios' || p.startsWith('/usuarios') ||
+      p === '/login' || p.startsWith('/login') ||
+      p === '/clients' || p.startsWith('/clients') || p === '/clientes' || p.startsWith('/clientes') ||
+      p === '/operations' || p.startsWith('/operations') || p === '/operaciones' || p.startsWith('/operaciones') ||
+      p === '/auth' || p.startsWith('/auth') || p === '/cierres' || p.startsWith('/cierres') || p === '/auditoria' || p.startsWith('/auditoria') || p === '/dashboard' || p.startsWith('/dashboard') || p === '/stats' || p === '/panel' || p === '/caja') {
     req.url = '/api' + req.url;
   }
   next();
 });
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const app = express();
-const PORT = process.env.PORT || 10000;
-
-app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
-app.use(express.json({ limit: '10mb' }));
 
 const DATA_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 function load(file, def) {
   const p = path.join(DATA_DIR, file);
@@ -55,7 +48,7 @@ function addLog(accion, usuario = 'admin', detalle = '') {
   save('auditoria.json', auditoria);
 }
 
-app.get('/', (req, res) => res.json({ status: 'OK', service: 'Casino Control Pro Backend', version: '2.0-full', uptime: process.uptime() }));
+app.get('/', (req, res) => res.json({ status: 'OK', service: 'Casino Control Pro Backend', version: '2.0-full-fix-final', uptime: process.uptime() }));
 app.get('/api', (req, res) => res.json({ status: 'OK', endpoints: ['/api/login','/api/usuarios','/api/clientes','/api/operaciones','/api/cierres','/api/auditoria','/api/dashboard'] }));
 
 function handleLogin(req, res) {
@@ -127,6 +120,7 @@ app.get('/api/clients', getClientes);
 app.post('/api/clientes', createCliente);
 app.post('/api/clients', createCliente);
 app.delete('/api/clientes/:id', deleteCliente);
+app.delete('/api/clients/:id', deleteCliente);
 
 function getOperaciones(req, res) { res.json(operaciones); }
 function createOperacion(req, res) {
@@ -158,6 +152,7 @@ app.get('/api/operations', getOperaciones);
 app.post('/api/operaciones', createOperacion);
 app.post('/api/operations', createOperacion);
 app.delete('/api/operaciones/:id', deleteOperacion);
+app.delete('/api/operations/:id', deleteOperacion);
 
 app.get('/api/cierres', (req, res) => res.json(cierres));
 app.post('/api/cierres', (req, res) => {
@@ -212,6 +207,4 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada: ' + req.method + ' ' + req.path });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log('Casino Control Pro Backend FULL corriendo en puerto ' + PORT);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`Backend 2.0-full-fix-final running on ${PORT}`));
