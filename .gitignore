@@ -1,4 +1,12 @@
-﻿node_modules
+node_modules
 /tmp
 *.db
 .env
+.env.*
+dist
+backups
+uploads
+.git
+*.sqlite
+*.sqlite3
+
