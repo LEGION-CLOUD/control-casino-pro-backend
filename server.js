@@ -8,6 +8,26 @@ const PORT = process.env.PORT || 10000;
 app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json({ limit: '10mb' }));
 
+// FIX: Acepta rutas con y sin /api para que el frontend no quede negro
+app.use((req, res, next) => {
+  if (req.path === '/users' || req.path.startsWith('/users/') || 
+      req.path === '/login' || req.path.startsWith('/login') ||
+      req.path === '/clients' || req.path.startsWith('/clients') ||
+      req.path === '/operations' || req.path === '/auth') {
+    req.url = '/api' + req.url;
+  }
+  next();
+});
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
+app.use(express.json({ limit: '10mb' }));
+
 const DATA_DIR = path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 
